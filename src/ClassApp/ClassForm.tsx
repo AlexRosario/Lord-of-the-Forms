@@ -6,8 +6,13 @@ import {
 	TextInput,
 } from "../FunctionalApp/FunctionalInputComponents";
 import { allCities } from "../utils/all-cities";
-import { isEmailValid } from "../utils/validations";
-import { FormType } from "../types";
+import {
+	isEmailValid,
+	isCityValid,
+	isNameValid,
+	isPhoneValid,
+} from "../utils/validations";
+import { UserInformation, FormProps, State } from "../types";
 
 const firstNameErrorMessage = "First name must be at least 2 characters long";
 const lastNameErrorMessage = "Last name must be at least 2 characters long";
@@ -15,9 +20,33 @@ const emailErrorMessage = "Email is Invalid";
 const cityErrorMessage = "State is Invalid";
 const phoneNumberErrorMessage = "Invalid Phone Number";
 
-export class ClassForm extends Component<FormType> {
-	state = {
-		isSubmitted: false,
+export class ClassForm extends Component<FormProps> {
+	state: State = {
+		firstNameInput: "",
+		lastNameInput: "",
+		emailInput: "",
+		cityInput: "",
+		phoneInput: ["", "", "", ""],
+	};
+
+	setFirstNameInput = (name: string) => {
+		this.setState({ firstNameInput: name });
+	};
+
+	setLastNameInput = (name: string) => {
+		this.setState({ lastNameInput: name });
+	};
+
+	setEmailInput = (email: string) => {
+		this.setState({ emailInput: email });
+	};
+
+	setCityInput = (city: string) => {
+		this.setState({ cityInput: city });
+	};
+
+	setPhoneInput = (phone: [string, string, string, string]) => {
+		this.setState({ phoneInput: phone });
 	};
 
 	ref0 = React.createRef<HTMLInputElement>();
@@ -26,45 +55,51 @@ export class ClassForm extends Component<FormType> {
 	ref3 = React.createRef<HTMLInputElement>();
 	ref4 = React.createRef<HTMLInputElement>();
 
-	handleSubmit = (e: { preventDefault: () => void }) => {
+	handleSubmit: React.MouseEventHandler<HTMLInputElement> = (
+		e: React.FormEvent
+	) => {
 		e.preventDefault();
-		this.setState({ isSubmitted: true });
+
+		const userData: UserInformation = {
+			firstName: this.state.firstNameInput,
+			lastName: this.state.lastNameInput,
+			email: this.state.emailInput,
+			city: this.state.cityInput,
+			phone: this.state.phoneInput.join(""),
+		};
+
+		if (
+			!isNameValid(this.state.firstNameInput) ||
+			!isNameValid(this.state.lastNameInput) ||
+			!isEmailValid(this.state.emailInput) ||
+			!isCityValid(this.state.cityInput) ||
+			!isPhoneValid(this.state.phoneInput)
+		) {
+			return;
+		} else {
+			this.props.handleUserData(userData);
+
+			this.setFirstNameInput("");
+			this.setLastNameInput("");
+			this.setEmailInput("");
+			this.setCityInput("");
+			this.setPhoneInput(["", "", "", ""]);
+		}
 	};
-
 	render() {
+		const { firstNameInput, lastNameInput, emailInput, cityInput, phoneInput } =
+			this.state;
 		const {
-			firstNameInput,
 			setFirstNameInput,
-			lastNameInput,
 			setLastNameInput,
-			emailInput,
 			setEmailInput,
-			cityInput,
 			setCityInput,
-			phoneInput,
 			setPhoneInput,
-		} = this.props;
-
-		const { isSubmitted } = this.state;
-
-		const isFirstNameValid = firstNameInput.length > 2;
-		const isLastNameValid = lastNameInput.length > 2;
-		const isCityValid = !!allCities.find(
-			(city) => city.toUpperCase() === cityInput.toUpperCase()
-		);
-		const isPhoneValid =
-			phoneInput.every((segment) => /^\d*$/.test(segment)) &&
-			phoneInput.join("").length === 7;
-
-		const shouldShowFirstNameError = isSubmitted && !isFirstNameValid;
-		const shouldShowLastNameError = isSubmitted && !isLastNameValid;
-		const shouldShowEmailError = isSubmitted && !isEmailValid(emailInput);
-		const shouldShowCityError = isSubmitted && !isCityValid;
-		const shouldShowPhoneError = isSubmitted && !isPhoneValid;
+		} = this;
 
 		return (
 			<>
-				<form onSubmit={this.handleSubmit}>
+				<form>
 					<u>
 						<h3>User Information Form</h3>
 					</u>
@@ -72,67 +107,95 @@ export class ClassForm extends Component<FormType> {
 						labelText="First Name"
 						inputProps={{
 							placeholder: "Bilbo",
-							onChange: (e) => setFirstNameInput(e.target.value),
+							onChange: (e) => {
+								setFirstNameInput(e.target.value);
+							},
 							value: firstNameInput,
 							ref: this.ref0,
 						}}
 					/>
-					{shouldShowFirstNameError && (
-						<ErrorMessage message={firstNameErrorMessage} show={true} />
-					)}
+
+					<ErrorMessage
+						message={firstNameErrorMessage}
+						show={!isNameValid(firstNameInput)}
+					/>
 
 					<TextInput
 						labelText="Last Name"
 						inputProps={{
 							placeholder: "Baggins",
-							onChange: (e) => setLastNameInput(e.target.value),
+							onChange: (e) => {
+								setLastNameInput(e.target.value);
+							},
 							value: lastNameInput,
 							ref: this.ref1,
 						}}
 					/>
-					{shouldShowLastNameError && (
-						<ErrorMessage message={lastNameErrorMessage} show={true} />
-					)}
+
+					<ErrorMessage
+						message={lastNameErrorMessage}
+						show={!isNameValid(lastNameInput)}
+					/>
+
+					{/* Email Input */}
 
 					<TextInput
 						labelText="Email"
 						inputProps={{
 							placeholder: "bilbo-baggins@adventurehobbits.net",
-							onChange: (e) => setEmailInput(e.target.value),
+							onChange: (e) => {
+								setEmailInput(e.target.value);
+							},
 							value: emailInput,
 							ref: this.ref2,
 						}}
 					/>
-					{shouldShowEmailError && (
-						<ErrorMessage message={emailErrorMessage} show={true} />
-					)}
 
+					<ErrorMessage
+						message={emailErrorMessage}
+						show={!isEmailValid(emailInput)}
+					/>
+
+					{/* City Input */}
 					<TextInput
 						labelText="City"
 						inputProps={{
 							placeholder: "Hobbiton",
-							onChange: (e) => setCityInput(e.target.value),
+							onChange: (e) => {
+								setCityInput(e.target.value);
+							},
 							value: cityInput,
 							ref: this.ref3,
 							list: "cities",
 							type: "text",
 						}}
 					/>
-					<datalist id="cities">
-						{allCities.map((city, index) => (
-							<option key={index} value={city} />
-						))}
-					</datalist>
-					{shouldShowCityError && (
-						<ErrorMessage message={cityErrorMessage} show={true} />
-					)}
+					<div>
+						<datalist id="cities">
+							{allCities.map((city, index) => (
+								<option key={index} value={city} />
+							))}
+						</datalist>
+					</div>
+
+					<ErrorMessage
+						message={cityErrorMessage}
+						show={!isCityValid(cityInput)}
+					/>
 
 					<PhoneInput setPhoneInput={setPhoneInput} phoneInput={phoneInput} />
-					{shouldShowPhoneError && (
-						<ErrorMessage message={phoneNumberErrorMessage} show={true} />
-					)}
 
-					<input type="submit" value="Submit" ref={this.ref4} />
+					<ErrorMessage
+						message={phoneNumberErrorMessage}
+						show={!isPhoneValid(phoneInput)}
+					/>
+
+					<input
+						type="submit"
+						value="Submit"
+						ref={this.ref4}
+						onClick={this.handleSubmit}
+					/>
 				</form>
 			</>
 		);

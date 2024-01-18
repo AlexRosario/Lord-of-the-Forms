@@ -43,6 +43,10 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 			const prevRef = refs[index - 1];
 			const value = e.target.value;
 
+			if (!/^\d*$/.test(value)) {
+				return;
+			}
+
 			const shouldGoToNextRef = currentMaxLength === value.length;
 
 			const shouldGoToPrevRef = value.length === 0;
@@ -66,7 +70,8 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 			<label htmlFor="phone">Phone:</label>
 			<div id="phone-input-wrap">
 				<input
-					type="text"
+					type="tel"
+					pattern="/[0-9]*/"
 					id="phone-input-1"
 					maxLength={2}
 					placeholder="55"
@@ -76,7 +81,8 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 				/>
 				-
 				<input
-					type="text"
+					type="tel"
+					pattern="[0-9]*"
 					id="phone-input-2"
 					maxLength={2}
 					placeholder="55"
@@ -86,7 +92,8 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 				/>
 				-
 				<input
-					type="text"
+					type="tel"
+					pattern="[0-9]*"
 					id="phone-input-3"
 					maxLength={2}
 					placeholder="55"
@@ -96,7 +103,8 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 				/>
 				-
 				<input
-					type="text"
+					type="tel"
+					pattern="[0-9]*"
 					id="phone-input-4"
 					placeholder="5"
 					maxLength={1}

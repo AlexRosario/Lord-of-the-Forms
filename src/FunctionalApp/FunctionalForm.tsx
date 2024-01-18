@@ -1,10 +1,15 @@
 import { ErrorMessage } from "../ErrorMessage";
 import * as React from "react";
-import { FormType } from "../types";
+import { UserInformation, FormProps } from "../types";
 import { useRef, useState } from "react";
 import { PhoneInput, TextInput } from "./FunctionalInputComponents";
 import { allCities } from "../utils/all-cities";
-import { isEmailValid } from "../utils/validations";
+import {
+	isEmailValid,
+	isCityValid,
+	isNameValid,
+	isPhoneValid,
+} from "../utils/validations";
 
 const firstNameErrorMessage = "First name must be at least 2 characters long";
 const lastNameErrorMessage = "Last name must be at least 2 characters long";
@@ -12,18 +17,15 @@ const emailErrorMessage = "Email is Invalid";
 const cityErrorMessage = "State is Invalid";
 const phoneNumberErrorMessage = "Invalid Phone Number";
 
-export const FunctionalForm: React.FC<FormType> = ({
-	firstNameInput,
-	setFirstNameInput,
-	lastNameInput,
-	setLastNameInput,
-	emailInput,
-	setEmailInput,
-	cityInput,
-	setCityInput,
-	phoneInput,
-	setPhoneInput,
-}) => {
+export const FunctionalForm = ({ handleUserData }: FormProps) => {
+	const [firstNameInput, setFirstNameInput] = useState("");
+	const [lastNameInput, setLastNameInput] = useState("");
+	const [emailInput, setEmailInput] = useState("");
+	const [cityInput, setCityInput] = useState("");
+	const [phoneInput, setPhoneInput] = useState<
+		[string, string, string, string]
+	>(["", "", "", ""]);
+
 	const refs = [
 		useRef<HTMLInputElement>(null),
 		useRef<HTMLInputElement>(null),
@@ -37,29 +39,38 @@ export const FunctionalForm: React.FC<FormType> = ({
 	const ref3 = refs[3];
 	const ref4 = refs[4];
 
-	const [isSubmitted, setIsSubmitted] = useState(false);
-
-	const isFirstNameValid = firstNameInput.length > 2;
-	const isLastNameValid = lastNameInput.length > 2;
-	const isCityValid = !!allCities.find(
-		(city) => city.toUpperCase() === cityInput.toUpperCase()
-	);
-	const isPhoneValid =
-		phoneInput.every((segment) => /^\d*$/.test(segment)) &&
-		phoneInput.join("").length === 7;
-
-	const shouldShowFirstNameError = isSubmitted && !isFirstNameValid;
-	const shouldShowLastNameError = isSubmitted && !isLastNameValid;
-	const shouldShowEmailError = isSubmitted && !isEmailValid;
-	const shouldShowCityError = isSubmitted && !isCityValid;
-	const shouldShowPhoneError = isSubmitted && !isPhoneValid;
-
 	const handleSubmit: React.MouseEventHandler<HTMLInputElement> = (
 		e: React.FormEvent
 	) => {
 		e.preventDefault();
-		setIsSubmitted(true);
+
+		const userData: UserInformation = {
+			firstName: firstNameInput,
+			lastName: lastNameInput,
+			email: emailInput,
+			city: cityInput,
+			phone: phoneInput.join(""),
+		};
+
+		if (
+			!isNameValid(firstNameInput) ||
+			!isNameValid(lastNameInput) ||
+			!isEmailValid(emailInput) ||
+			!isCityValid(cityInput) ||
+			!isPhoneValid(phoneInput)
+		) {
+			return;
+		} else {
+			handleUserData(userData);
+
+			setFirstNameInput("");
+			setLastNameInput("");
+			setEmailInput("");
+			setCityInput("");
+			setPhoneInput(["", "", "", ""]);
+		}
 	};
+
 	return (
 		<>
 			<form>
@@ -77,9 +88,12 @@ export const FunctionalForm: React.FC<FormType> = ({
 						ref: ref0,
 					}}
 				/>
-				{shouldShowFirstNameError && (
-					<ErrorMessage message={firstNameErrorMessage} show={true} />
-				)}
+
+				<ErrorMessage
+					message={firstNameErrorMessage}
+					show={!isNameValid(firstNameInput)}
+				/>
+
 				<TextInput
 					labelText="Last Name"
 					inputProps={{
@@ -91,9 +105,12 @@ export const FunctionalForm: React.FC<FormType> = ({
 						ref: ref1,
 					}}
 				/>
-				{shouldShowLastNameError && (
-					<ErrorMessage message={lastNameErrorMessage} show={true} />
-				)}
+
+				<ErrorMessage
+					message={lastNameErrorMessage}
+					show={!isNameValid(lastNameInput)}
+				/>
+
 				{/* Email Input */}
 
 				<TextInput
@@ -108,9 +125,11 @@ export const FunctionalForm: React.FC<FormType> = ({
 					}}
 				/>
 
-				{shouldShowEmailError && (
-					<ErrorMessage message={emailErrorMessage} show={true} />
-				)}
+				<ErrorMessage
+					message={emailErrorMessage}
+					show={!isEmailValid(emailInput)}
+				/>
+
 				{/* City Input */}
 				<TextInput
 					labelText="City"
@@ -132,14 +151,19 @@ export const FunctionalForm: React.FC<FormType> = ({
 						))}
 					</datalist>
 				</div>
-				{shouldShowCityError && (
-					<ErrorMessage message={cityErrorMessage} show={true} />
-				)}
+
+				<ErrorMessage
+					message={cityErrorMessage}
+					show={!isCityValid(cityInput)}
+				/>
+
 				<PhoneInput setPhoneInput={setPhoneInput} phoneInput={phoneInput} />
 
-				{shouldShowPhoneError && (
-					<ErrorMessage message={phoneNumberErrorMessage} show={true} />
-				)}
+				<ErrorMessage
+					message={phoneNumberErrorMessage}
+					show={!isPhoneValid(phoneInput)}
+				/>
+
 				<input type="submit" value="Submit" ref={ref4} onClick={handleSubmit} />
 			</form>
 		</>

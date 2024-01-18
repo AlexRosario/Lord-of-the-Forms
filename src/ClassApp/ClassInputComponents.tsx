@@ -1,10 +1,6 @@
 import { Component, createRef } from "react";
 import * as React from "react";
 
-export type PhoneInputState = {
-	phoneInput: [string, string, string, string];
-};
-
 export class PhoneInput extends Component<
 	{
 		setPhoneInput: (phone: [string, string, string, string]) => void;
@@ -24,6 +20,10 @@ export class PhoneInput extends Component<
 			const nextRef = [this.ref0, this.ref1, this.ref2, this.ref3][index + 1];
 			const prevRef = [this.ref0, this.ref1, this.ref2, this.ref3][index - 1];
 			const value = e.target.value;
+
+			if (!/^\d*$/.test(value)) {
+				return;
+			}
 
 			const shouldGoToNextRef = currentMaxLength === value.length;
 			const shouldGoToPrevRef = value.length === 0;
