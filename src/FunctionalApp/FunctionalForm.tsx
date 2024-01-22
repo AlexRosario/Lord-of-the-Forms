@@ -1,9 +1,8 @@
 import { ErrorMessage } from "../ErrorMessage";
 import * as React from "react";
-import { UserInformation, FormProps } from "../types";
-import { useRef, useState } from "react";
+import { PhoneInputTuple, FormProps } from "../types";
+import { /*useRef,*/ useState } from "react";
 import { PhoneInput, TextInput } from "./FunctionalInputComponents";
-import { allCities } from "../utils/all-cities";
 import {
 	isEmailValid,
 	isCityValid,
@@ -17,40 +16,24 @@ const emailErrorMessage = "Email is Invalid";
 const cityErrorMessage = "State is Invalid";
 const phoneNumberErrorMessage = "Invalid Phone Number";
 
-export const FunctionalForm = ({ handleUserData }: FormProps) => {
+export const FunctionalForm = ({ setUserData }: FormProps) => {
 	const [firstNameInput, setFirstNameInput] = useState("");
 	const [lastNameInput, setLastNameInput] = useState("");
 	const [emailInput, setEmailInput] = useState("");
 	const [cityInput, setCityInput] = useState("");
-	const [phoneInput, setPhoneInput] = useState<
-		[string, string, string, string]
-	>(["", "", "", ""]);
-
-	const refs = [
-		useRef<HTMLInputElement>(null),
-		useRef<HTMLInputElement>(null),
-		useRef<HTMLInputElement>(null),
-		useRef<HTMLInputElement>(null),
-		useRef<HTMLInputElement>(null),
-	];
-	const ref0 = refs[0];
-	const ref1 = refs[1];
-	const ref2 = refs[2];
-	const ref3 = refs[3];
-	const ref4 = refs[4];
+	const [phoneInput, setPhoneInput] = useState<PhoneInputTuple>([
+		"",
+		"",
+		"",
+		"",
+	]);
+	const [isFormValid, setIsFormValid] = useState(false);
 
 	const handleSubmit: React.MouseEventHandler<HTMLInputElement> = (
 		e: React.FormEvent
 	) => {
 		e.preventDefault();
-
-		const userData: UserInformation = {
-			firstName: firstNameInput,
-			lastName: lastNameInput,
-			email: emailInput,
-			city: cityInput,
-			phone: phoneInput.join(""),
-		};
+		setIsFormValid(true);
 
 		if (
 			!isNameValid(firstNameInput) ||
@@ -61,16 +44,57 @@ export const FunctionalForm = ({ handleUserData }: FormProps) => {
 		) {
 			return;
 		} else {
-			handleUserData(userData);
+			setUserData({
+				email: emailInput,
+				firstName: firstNameInput,
+				lastName: lastNameInput,
+				phone: phoneInput.join(""),
+				city: cityInput,
+			});
 
 			setFirstNameInput("");
 			setLastNameInput("");
 			setEmailInput("");
 			setCityInput("");
 			setPhoneInput(["", "", "", ""]);
+			setIsFormValid(false);
 		}
 	};
+	//please disregard. Just for fun, I added a ref to each input and made it so that when you press enter, it will focus on the next input.
+	/*
+	const refs = [
+		useRef<HTMLInputElement>(null),
+		useRef<HTMLInputElement>(null),
+		useRef<HTMLInputElement>(null),
+		useRef<HTMLInputElement>(null),
+		useRef<HTMLInputElement>(null),
+		useRef<HTMLInputElement>(null),
+	];
+	const [index, setIndex] = useState(0);
 
+	const nextRef = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (
+			e.key === "Enter" &&
+			index < refs.length - 1 &&
+			e.currentTarget.value.length > 0
+		) {
+			e.preventDefault();
+			setIndex(index + 1);
+			refs[index + 1].current?.focus();
+		} else if (
+			e.key === "Backspace" &&
+			index > 0 &&
+			e.currentTarget.value.length === 0
+		) {
+			e.preventDefault();
+			setIndex(index - 1);
+			refs[index - 1].current?.focus();
+		}
+
+		if (index === refs.length - 1) {
+			setIndex(0);
+		}
+	};*/
 	return (
 		<>
 			<form>
@@ -85,14 +109,19 @@ export const FunctionalForm = ({ handleUserData }: FormProps) => {
 							setFirstNameInput(e.target.value);
 						},
 						value: firstNameInput,
-						ref: ref0,
+						/*	onKeyDown: (e) => {
+							nextRef(e);
+						},
+
+						ref: refs[0],*/
 					}}
 				/>
-
-				<ErrorMessage
-					message={firstNameErrorMessage}
-					show={!isNameValid(firstNameInput)}
-				/>
+				{isFormValid && (
+					<ErrorMessage
+						message={firstNameErrorMessage}
+						show={!isNameValid(firstNameInput)}
+					/>
+				)}
 
 				<TextInput
 					labelText="Last Name"
@@ -102,16 +131,20 @@ export const FunctionalForm = ({ handleUserData }: FormProps) => {
 							setLastNameInput(e.target.value);
 						},
 						value: lastNameInput,
-						ref: ref1,
+						/*onKeyDown: (e) => {
+							nextRef(e);
+						},
+
+						ref: refs[1],*/
 					}}
 				/>
 
-				<ErrorMessage
-					message={lastNameErrorMessage}
-					show={!isNameValid(lastNameInput)}
-				/>
-
-				{/* Email Input */}
+				{isFormValid && (
+					<ErrorMessage
+						message={lastNameErrorMessage}
+						show={!isNameValid(lastNameInput)}
+					/>
+				)}
 
 				<TextInput
 					labelText="Email"
@@ -121,16 +154,21 @@ export const FunctionalForm = ({ handleUserData }: FormProps) => {
 							setEmailInput(e.target.value);
 						},
 						value: emailInput,
-						ref: ref2,
+						/*onKeyDown: (e) => {
+							nextRef(e);
+						},
+
+						ref: refs[2],*/
 					}}
 				/>
 
-				<ErrorMessage
-					message={emailErrorMessage}
-					show={!isEmailValid(emailInput)}
-				/>
+				{isFormValid && (
+					<ErrorMessage
+						message={emailErrorMessage}
+						show={!isEmailValid(emailInput)}
+					/>
+				)}
 
-				{/* City Input */}
 				<TextInput
 					labelText="City"
 					inputProps={{
@@ -139,32 +177,50 @@ export const FunctionalForm = ({ handleUserData }: FormProps) => {
 							setCityInput(e.target.value);
 						},
 						value: cityInput,
-						ref: ref3,
+						/*
+						onKeyDown: (e) => {
+							nextRef(e);
+						},
+						ref: refs[3],*/
 						list: "cities",
 						type: "text",
 					}}
 				/>
-				<div>
-					<datalist id="cities">
-						{allCities.map((city, index) => (
-							<option key={index} value={city} />
-						))}
-					</datalist>
-				</div>
 
-				<ErrorMessage
-					message={cityErrorMessage}
-					show={!isCityValid(cityInput)}
+				{isFormValid && (
+					<ErrorMessage
+						message={cityErrorMessage}
+						show={!isCityValid(cityInput)}
+					/>
+				)}
+
+				<PhoneInput
+					setPhoneInput={setPhoneInput}
+					phoneInput={phoneInput}
+					/*onKeyDown={(e) => {
+						nextRef(e);
+					}}
+					inputProps={{
+						ref: refs[4],
+					}}*/
 				/>
 
-				<PhoneInput setPhoneInput={setPhoneInput} phoneInput={phoneInput} />
+				{isFormValid && (
+					<ErrorMessage
+						message={phoneNumberErrorMessage}
+						show={!isPhoneValid(phoneInput)}
+					/>
+				)}
 
-				<ErrorMessage
-					message={phoneNumberErrorMessage}
-					show={!isPhoneValid(phoneInput)}
+				<input
+					type="submit"
+					value="Submit"
+					onClick={handleSubmit}
+					/*	ref={refs[5]}
+					onKeyDown={(e) => {
+						nextRef(e);
+					}}*/
 				/>
-
-				<input type="submit" value="Submit" ref={ref4} onClick={handleSubmit} />
 			</form>
 		</>
 	);

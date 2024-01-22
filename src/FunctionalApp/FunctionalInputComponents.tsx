@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ComponentProps, useRef } from "react";
+import { PhoneInputState } from "../types";
 
 export function TextInput({
 	labelText,
@@ -15,14 +16,13 @@ export function TextInput({
 		</div>
 	);
 }
-export type PhoneInputState = {
-	phoneInput: [string, string, string, string];
-	setPhoneInput: (phone: [string, string, string, string]) => void;
-};
-export const PhoneInput: React.FC<PhoneInputState> = ({
+
+export const PhoneInput = ({
 	phoneInput,
 	setPhoneInput,
-}) => {
+}: //inputProps,
+//	onKeyDown,
+PhoneInputState) => {
 	const refs = [
 		useRef<HTMLInputElement>(null),
 		useRef<HTMLInputElement>(null),
@@ -71,18 +71,17 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 			<div id="phone-input-wrap">
 				<input
 					type="tel"
-					pattern="/[0-9]*/"
 					id="phone-input-1"
 					maxLength={2}
 					placeholder="55"
 					ref={ref0}
 					value={phoneInput[0]}
 					onChange={createOnChangeHandler(0)}
+					//	{...inputProps}
 				/>
 				-
 				<input
 					type="tel"
-					pattern="[0-9]*"
 					id="phone-input-2"
 					maxLength={2}
 					placeholder="55"
@@ -93,7 +92,6 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 				-
 				<input
 					type="tel"
-					pattern="[0-9]*"
 					id="phone-input-3"
 					maxLength={2}
 					placeholder="55"
@@ -104,13 +102,13 @@ export const PhoneInput: React.FC<PhoneInputState> = ({
 				-
 				<input
 					type="tel"
-					pattern="[0-9]*"
 					id="phone-input-4"
 					placeholder="5"
 					maxLength={1}
 					ref={ref3}
 					value={phoneInput[3]}
 					onChange={createOnChangeHandler(3)}
+					//onKeyDown={onKeyDown}
 				/>
 			</div>
 		</div>

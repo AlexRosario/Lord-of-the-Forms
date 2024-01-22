@@ -12,7 +12,7 @@ import {
 	isNameValid,
 	isPhoneValid,
 } from "../utils/validations";
-import { UserInformation, FormProps, State } from "../types";
+import { FormProps, ClassState } from "../types";
 
 const firstNameErrorMessage = "First name must be at least 2 characters long";
 const lastNameErrorMessage = "Last name must be at least 2 characters long";
@@ -21,12 +21,13 @@ const cityErrorMessage = "State is Invalid";
 const phoneNumberErrorMessage = "Invalid Phone Number";
 
 export class ClassForm extends Component<FormProps> {
-	state: State = {
+	state: ClassState = {
 		firstNameInput: "",
 		lastNameInput: "",
 		emailInput: "",
 		cityInput: "",
 		phoneInput: ["", "", "", ""],
+		isFormValid: false,
 	};
 
 	setFirstNameInput = (name: string) => {
@@ -49,46 +50,52 @@ export class ClassForm extends Component<FormProps> {
 		this.setState({ phoneInput: phone });
 	};
 
-	ref0 = React.createRef<HTMLInputElement>();
-	ref1 = React.createRef<HTMLInputElement>();
-	ref2 = React.createRef<HTMLInputElement>();
-	ref3 = React.createRef<HTMLInputElement>();
-	ref4 = React.createRef<HTMLInputElement>();
-
 	handleSubmit: React.MouseEventHandler<HTMLInputElement> = (
 		e: React.FormEvent
 	) => {
 		e.preventDefault();
+		this.setState({ isFormValid: true });
 
-		const userData: UserInformation = {
-			firstName: this.state.firstNameInput,
-			lastName: this.state.lastNameInput,
-			email: this.state.emailInput,
-			city: this.state.cityInput,
-			phone: this.state.phoneInput.join(""),
-		};
+		const firstName = this.state.firstNameInput;
+		const lastName = this.state.lastNameInput;
+		const email = this.state.emailInput;
+		const city = this.state.cityInput;
+		const phone = this.state.phoneInput;
 
 		if (
-			!isNameValid(this.state.firstNameInput) ||
-			!isNameValid(this.state.lastNameInput) ||
-			!isEmailValid(this.state.emailInput) ||
-			!isCityValid(this.state.cityInput) ||
-			!isPhoneValid(this.state.phoneInput)
+			!isNameValid(firstName) ||
+			!isNameValid(lastName) ||
+			!isEmailValid(email) ||
+			!isCityValid(city) ||
+			!isPhoneValid(phone)
 		) {
 			return;
 		} else {
-			this.props.handleUserData(userData);
+			this.props.setUserData({
+				email: email,
+				firstName: firstName,
+				lastName: lastName,
+				phone: phone.join(""),
+				city: city,
+			});
 
 			this.setFirstNameInput("");
 			this.setLastNameInput("");
 			this.setEmailInput("");
 			this.setCityInput("");
 			this.setPhoneInput(["", "", "", ""]);
+			this.setState({ isFormValid: false });
 		}
 	};
 	render() {
-		const { firstNameInput, lastNameInput, emailInput, cityInput, phoneInput } =
-			this.state;
+		const {
+			firstNameInput,
+			lastNameInput,
+			emailInput,
+			cityInput,
+			phoneInput,
+			isFormValid,
+		} = this.state;
 		const {
 			setFirstNameInput,
 			setLastNameInput,
@@ -111,15 +118,14 @@ export class ClassForm extends Component<FormProps> {
 								setFirstNameInput(e.target.value);
 							},
 							value: firstNameInput,
-							ref: this.ref0,
 						}}
 					/>
-
-					<ErrorMessage
-						message={firstNameErrorMessage}
-						show={!isNameValid(firstNameInput)}
-					/>
-
+					{isFormValid && (
+						<ErrorMessage
+							message={firstNameErrorMessage}
+							show={!isNameValid(firstNameInput)}
+						/>
+					)}
 					<TextInput
 						labelText="Last Name"
 						inputProps={{
@@ -128,16 +134,14 @@ export class ClassForm extends Component<FormProps> {
 								setLastNameInput(e.target.value);
 							},
 							value: lastNameInput,
-							ref: this.ref1,
 						}}
 					/>
-
-					<ErrorMessage
-						message={lastNameErrorMessage}
-						show={!isNameValid(lastNameInput)}
-					/>
-
-					{/* Email Input */}
+					{isFormValid && (
+						<ErrorMessage
+							message={lastNameErrorMessage}
+							show={!isNameValid(lastNameInput)}
+						/>
+					)}
 
 					<TextInput
 						labelText="Email"
@@ -147,16 +151,15 @@ export class ClassForm extends Component<FormProps> {
 								setEmailInput(e.target.value);
 							},
 							value: emailInput,
-							ref: this.ref2,
 						}}
 					/>
+					{isFormValid && (
+						<ErrorMessage
+							message={emailErrorMessage}
+							show={!isEmailValid(emailInput)}
+						/>
+					)}
 
-					<ErrorMessage
-						message={emailErrorMessage}
-						show={!isEmailValid(emailInput)}
-					/>
-
-					{/* City Input */}
 					<TextInput
 						labelText="City"
 						inputProps={{
@@ -165,7 +168,6 @@ export class ClassForm extends Component<FormProps> {
 								setCityInput(e.target.value);
 							},
 							value: cityInput,
-							ref: this.ref3,
 							list: "cities",
 							type: "text",
 						}}
@@ -177,25 +179,20 @@ export class ClassForm extends Component<FormProps> {
 							))}
 						</datalist>
 					</div>
-
-					<ErrorMessage
-						message={cityErrorMessage}
-						show={!isCityValid(cityInput)}
-					/>
-
+					{isFormValid && (
+						<ErrorMessage
+							message={cityErrorMessage}
+							show={!isCityValid(cityInput)}
+						/>
+					)}
 					<PhoneInput setPhoneInput={setPhoneInput} phoneInput={phoneInput} />
-
-					<ErrorMessage
-						message={phoneNumberErrorMessage}
-						show={!isPhoneValid(phoneInput)}
-					/>
-
-					<input
-						type="submit"
-						value="Submit"
-						ref={this.ref4}
-						onClick={this.handleSubmit}
-					/>
+					{isFormValid && (
+						<ErrorMessage
+							message={phoneNumberErrorMessage}
+							show={!isPhoneValid(phoneInput)}
+						/>
+					)}
+					<input type="submit" value="Submit" onClick={this.handleSubmit} />
 				</form>
 			</>
 		);

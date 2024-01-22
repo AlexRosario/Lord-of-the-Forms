@@ -6,14 +6,22 @@ export type UserInformation = {
 	phone: string;
 };
 
-export type State = {
+export type ClassState = {
 	firstNameInput: string;
 	lastNameInput: string;
 	emailInput: string;
 	cityInput: string;
 	phoneInput: [string, string, string, string];
+	isFormValid: boolean;
 };
 
 export interface FormProps {
-	handleUserData: (userData: UserInformation) => void;
+	setUserData: (userData: UserInformation) => void;
 }
+export type PhoneInputState = {
+	phoneInput: PhoneInputTuple;
+	setPhoneInput: (phone: PhoneInputTuple) => void;
+	//inputProps: ComponentProps<"input">;
+	//onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+};
+export type PhoneInputTuple = [string, string, string, string];

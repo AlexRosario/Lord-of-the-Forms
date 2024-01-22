@@ -1,10 +1,11 @@
 import { Component, createRef } from "react";
+import { PhoneInputTuple } from "../types";
 import * as React from "react";
 
 export class PhoneInput extends Component<
 	{
-		setPhoneInput: (phone: [string, string, string, string]) => void;
-		phoneInput: [string, string, string, string];
+		setPhoneInput: (phone: PhoneInputTuple) => void;
+		phoneInput: PhoneInputTuple;
 	},
 	{}
 > {
